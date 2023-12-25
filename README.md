@@ -66,9 +66,9 @@ To use the bot, send messages to it on Webex using the following command format:
 - For programming assistance: ```!codehelp -l <prog-lang> -q <your question or code>```
 
 
-- To create a jira story: ```!jspost #{role} <Sotry title>```
+- To create a jira story: ```!jspost #{role} <story title>```
 
-      - Optional parameters: !jspost #{role} <Sotry title> -u <user-id> -e <epic-id> -t <team-id> -sp <story-points> 
+      - Optional parameters: !jspost #{role} <story title> -u <user-id> -e <epic-id> -t <team-id> -sp <story-points> 
 
-- To get AI generated jira story content: ```!jsget #{role} <Sotry title>```
+- To get AI generated jira story content: ```!jsget #{role} <story title>```
 
