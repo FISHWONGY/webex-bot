@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webex-bot
+  labels:
+    app: webex-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: webex-workspaces-producer
+  template:
+    metadata:
+     labels:
+      name: webex-bot
+      app: webex-bot
+    spec:
+      serviceAccountName: webex-bot-sa
+      restartPolicy: Always
+      containers:
+        - image: gcp-region-docker.pkg.dev/gcp-project/folder/webex-bot-app
+          name: webex-bot
+          envFrom:
+            - configMapRef:
+                name: webex-bot-config
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 500m
+            requests:
+              memory: 512Mi
+              cpu: 500m

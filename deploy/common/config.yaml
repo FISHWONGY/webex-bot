@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webex-bot-config
+data:
+  GCP_PROJECT_ID: "gcp-project"
+  ENV: "prod"

@@ -1,0 +1,20 @@
+apiVersion: skaffold/v2beta28
+kind: Config
+metadata:
+  name: webex-bot
+build:
+  artifacts:
+  - image: gcp-region-docker.pkg.dev/gcp-project/folder/webex-bot-app
+    docker:
+      dockerfile: Dockerfile
+deploy:
+  kubeContext: gke_gcp-project_region_autopilot-cluster
+  kustomize:
+    paths:
+    - deploy/common
+profiles:
+- name: production
+  deploy:
+    kustomize:
+      paths:
+      - deploy/production

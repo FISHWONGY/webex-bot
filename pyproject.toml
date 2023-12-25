@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "webex-bot"
+version = "0.1.0"
+description = ""
+authors = ["fishwongy"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+oscrypto = {git = "https://github.com/wbond/oscrypto.git", rev = "d5f3437ed24257895ae1edd9e503cfb352e635a8" }
+python = "3.9"
+webex-bot = "^0.3.3"
+webexteamssdk = "^1.6.1"
+websockets = "^10.2"
+
+openai = "0.28"
+requests = "^2.31.0"
+
+[build-system]
+requires = ["poetry-core>=1.4.1"]
+build-backend = "poetry.core.masonry.api"
