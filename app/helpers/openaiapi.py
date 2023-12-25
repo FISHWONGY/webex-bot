@@ -5,25 +5,41 @@ import time
 import base64
 import requests
 from typing import Optional
+from openai import AzureOpenAI
 
 
-def refresh_token():
-    while True:
-        url = "url"
-        payload = "grant_type=client_credentials"
-        value = base64.b64encode(
-            f"{OPENAI_CLIENT_ID}:{OPENAI_CLIENT_SECRET}".encode("utf-8")
-        ).decode("utf-8")
-        headers = {
-            "Accept": "*/*",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Authorization": f"Basic {value}",
-        }
 
-        token_response = requests.request("POST", url, headers=headers, data=payload)
-        openai.api_key = token_response.json()["access_token"]
+class OpenAIClient:
+    client = None
+    lock = threading.Lock()
 
-        time.sleep(3600)
+    @staticmethod
+    def refresh_token():
+        while True:
+            with OpenAIClient.lock:
+                url = "url/oauth2/default/v1/token"
+                payload = "grant_type=client_credentials"
+                value = base64.b64encode(
+                    f"{OPENAI_CLIENT_ID}:{OPENAI_CLIENT_SECRET}".encode("utf-8")
+                ).decode("utf-8")
+                headers = {
+                    "Accept": "*/*",
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Authorization": f"Basic {value}",
+                }
+
+                token_response = requests.request(
+                    "POST", url, headers=headers, data=payload
+                )
+
+                OpenAIClient.client = AzureOpenAI(
+                    azure_endpoint="https://azure-endpoint.com",
+                    api_key=token_response.json()["access_token"],
+                    api_version="2023-08-01-preview",
+                )
+                logging.info("Client refreshed.")
+            time.sleep(3500)
+
 
 
 def construct_formatter_prompt(query: str) -> list:
@@ -103,13 +119,15 @@ def construct_jira_prompt(role: str, title: str) -> list:
 
 
 def chat_response(msg_list: list) -> str:
-    response = openai.ChatCompletion.create(
-        engine="gpt-35-turbo",
+    with OpenAIClient.lock:
+        client = OpenAIClient.client
+
+    response = client.chat.completions.create(
+        model="gpt-35-turbo",
         messages=msg_list,
-        stop=["<|im_end|>"],
         user=f'{{"appkey": "{OPENAI_API_KEY}"}}',
     )
 
-    output = response["choices"][0]["message"]["content"]
+    output = response.choices[0].message.content
 
     return f"<blockquote class=info>{output}\n\n---END---</blockquote>"
