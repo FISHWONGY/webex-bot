@@ -1,9 +1,10 @@
 from webex_bot.models.command import Command
 from common_func import *
+from utils import jira_project_key
 import re
 import openaiapi as openaiapi
 import jiraapi as jiraapi
-from utils import jira_project_key
+
 
 jira_lookup_dict = get_jira_user_id()
 
@@ -44,6 +45,9 @@ class SqlOpt(Command):
             card=None,
         )
 
+    def pre_execute(self, message, attachment_actions, activity):
+        return "<blockquote class=info>\n\n**Command received.**\n\n\n**Working on SQL Optimisation...**\n\n</blockquote>"
+
     def execute(self, message, attachment_actions, activity):
         try:
             q_str, comm_str = re.split(
@@ -77,6 +81,9 @@ class SqlFormatter(Command):
             f"Please type !sqlformat followed by your snowflake query",
             card=None,
         )
+
+    def pre_execute(self, message, attachment_actions, activity):
+        return "<blockquote class=info>\n\n**Command received.**\n\n\n**Working on SQL Reformatting...**\n\n</blockquote>"
 
     def execute(self, message, attachment_actions, activity):
         q_str = message.strip().lower()
@@ -172,7 +179,7 @@ class JiraStory(Command):
         except ValueError:
             response_message = (
                 "Invalid input format. \nPlease type !jsget followed by #{role: da/ de} and your jira story title."
-                "\nExample: \n\n```\n!jsget #de Building new data pipelines\n```"
+                "\nExample: \n\n```\n!jsget #de Create new data pipeline\n```"
             )
 
         return response_message
@@ -253,15 +260,15 @@ class JiraStoryWrite(Command):
 
         except ValueError as e:
             response_message = str(e).capitalize() + (
-                "\n\nInvalid input format. \nPlease type !jspost followed by #{role: da/de} and your jira story title.\nOptionally you can have -u {user-id}, -e {epic-id} and -t {jira-board-id} as well."
-                "\nExample: \n\n```\n!jspost #de Building new data pipelines\n```"
+                "\n\nInvalid input format. \nPlease type !jspost followed by #{role: da/de} and your jira story title.\nOptionally you can have -u {user_cec}, -e {epic-id} and -t {jira-board-id} as well."
+                "\nExample: \n\n```\n!jspost #de Create new data pipeline\n```"
                 "\n\nOptionally, you could also define your own parameter for **user**, **epic** and **team id** as below:"
                 "\n\nDefining user and epic:"
-                "\n```\n!jspost #de Building new data pipelines -u 123 -e 456\n```"
+                "\n```\n!jspost #de Create new data pipeline -u 123 -e 456\n```"
                 "\nDefining user only"
-                "\n```\n!jspost #de Building new data pipelines -u 123 \n```"
+                "\n```\n!jspost #de Create new data pipeline -u 123 \n```"
                 "\nDefining epic only:"
-                "\n```\n!jspost #de Building new data pipelines -e 456\n```"
+                "\n```\n!jspost #de Create new data pipeline -e 456\n```"
             )
         except Exception as e:
             response_message = f"Failed to create a jira story: {str(e)}"
