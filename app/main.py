@@ -1,13 +1,14 @@
 from webex_bot.webex_bot import WebexBot
 from bot_commands import *
 from utils import webex_token, webex_space_id
+from openaiapi import OpenAIClient
 import threading
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-threading.Thread(target=openaiapi.refresh_token).start()
+threading.Thread(target=OpenAIClient.refresh_token, daemon=True).start()
 
 bot = WebexBot(webex_token, approved_users=get_approved_user())
 
