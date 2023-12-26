@@ -4,7 +4,12 @@ Chat GPT AI assistant w/ Webex integration
 
 This project is a Webex Chatbot that uses OpenAI's GPT-3.5 model to provide automated responses. It was developed in Python and uses the OpenAI API, Webex API and Jira API for chat operations.
 
- ## ✨ Background
+## ✨ Demo
+![webex-bot](https://github.com/FISHWONGY/webex-bot/assets/59711659/30dea415-d609-4b30-8396-50865fcce965)
+
+
+
+## ✨ Background
 
 The core functionality of the chatbot is provided by OpenAI's GPT-3.5 model, specifically with the autocompletion API.
 Webex is a collaboration platform that can be used as a messsaging tool. This project uses the Webex API to interact with users on the platform.
