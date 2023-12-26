@@ -68,7 +68,7 @@ To use the bot, send messages to it on Webex using the following command format:
 - For SQL formatting: ```!sqlformat <your SQL query>```
 
 
-- For programming assistance: ```!codehelp -l <prog-lang> -q <your question or code>```
+- For programming assistance: ```!codeq -l <prog-lang> -q <your question or code>```
 
 
 - To create a jira story: ```!jspost #{role} <story title>```
