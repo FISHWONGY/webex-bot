@@ -1,4 +1,5 @@
 from typing import Optional, Union
+import re
 import requests
 from requests.auth import HTTPBasicAuth
 from utils import (
@@ -59,3 +60,19 @@ def write_jira_story(payload: dict):
         logging.info(f"Successfully created story")
     else:
         logging.info(f"Failed to create story. Error: {response.json()}")
+
+
+def parse_role(role: str) -> str:
+    role = role.lower()
+    if role == "#de":
+        return "data engineer"
+    elif role == "#da":
+        return "data analyst"
+    else:
+        raise ValueError
+
+
+def extract_value(pattern: str, message: str):
+    match = re.search(pattern, message)
+    return match.group(1) if match else None
+
