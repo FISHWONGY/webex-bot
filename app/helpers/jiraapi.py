@@ -1,5 +1,4 @@
 from typing import Optional, Union
-import re
 import requests
 from requests.auth import HTTPBasicAuth
 from utils import (
@@ -70,9 +69,4 @@ def parse_role(role: str) -> str:
         return "data analyst"
     else:
         raise ValueError
-
-
-def extract_value(pattern: str, message: str):
-    match = re.search(pattern, message)
-    return match.group(1) if match else None
 
