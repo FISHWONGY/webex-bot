@@ -12,7 +12,7 @@ webex-bot = "^0.3.3"
 webexteamssdk = "^1.6.1"
 websockets = "^10.2"
 
-openai = "0.28"
+openai = "1.6.1"
 requests = "^2.31.0"
 
 [build-system]
