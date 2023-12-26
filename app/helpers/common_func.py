@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Tuple
 import requests
 import logging
@@ -35,6 +36,10 @@ def extract_json_string(s: str) -> dict:
 
     return json_dict
 
+def extract_value(pattern: str, message: str):
+    match = re.search(pattern, message, re.DOTALL)
+    return match.group(1) if match else None
+    
 
 def send_bot_md_msg(bot_token: str, space_id: str, md_msg: str):
     """A starting message to webex space at the beginning"""
