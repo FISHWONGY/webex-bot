@@ -131,14 +131,11 @@ class CodeHelp(Command):
 
     def execute(self, message, attachment_actions, activity):
         try:
-            lang_match = re.search(r"-l ([\w\s]+)", message)
-            question_match = re.search(r"-q (.+)", message)
+            lang = extract_value(r"-l\s*([\w\s]+)", message)
+            question = extract_value(r"-q\s*(.+)", message)
 
-            if not lang_match or not question_match:
+            if not lang or not question:
                 raise ValueError
-
-            lang = lang_match.group(1)
-            question = question_match.group(1)
 
             msg_hist = openaiapi.construct_code_help_prompt(lang, question)
             response_message = openaiapi.chat_response(msg_hist)
@@ -198,13 +195,13 @@ class JiraStoryWrite(Command):
             role, remaining_msg = message[1:].split(" ", 1)
             role = jiraapi.parse_role(role)
 
-            username = jiraapi.extract_value(r"-u (\w+)", remaining_msg)
-            epic_id = jiraapi.extract_value(r"-e (\w+)", remaining_msg)
-            team_id = jiraapi.extract_value(r"-t (\w+)", remaining_msg)
-            sp = jiraapi.extract_value(r"-sp (\w+)", remaining_msg)
+            username = extract_value(r"-u\s*(\w*)", remaining_msg)
+            epic_id = extract_value(r"-e\s*(\w*)", remaining_msg)
+            team_id = extract_value(r"-t\s*(\w*)", remaining_msg)
+            sp = extract_value(r"-sp\s*(\w*)", remaining_msg)
 
             remaining_msg = re.sub(
-                r"-u \w+|-e \w+|-t \w+|-sp \w+", "", remaining_msg
+                r"\s*-u\s*\w+|\s*-e\s*\w+|\s*-t\s*\w+|\s*-sp\s*\w+", "", remaining_msg
             ).strip()
             title = remaining_msg[0].upper() + remaining_msg[1:]
 
