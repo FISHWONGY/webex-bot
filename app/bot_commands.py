@@ -1,9 +1,10 @@
 from webex_bot.models.command import Command
 from common_func import *
+from utils import jira_project_key
 import re
 import openaiapi as openaiapi
 import jiraapi as jiraapi
-from utils import jira_project_key
+
 
 jira_lookup_dict = get_jira_user_id()
 
@@ -44,6 +45,9 @@ class SqlOpt(Command):
             card=None,
         )
 
+    def pre_execute(self, message, attachment_actions, activity):
+        return "<blockquote class=info>\n\n**Command received.**\n\n\n**Working on SQL Optimisation...**\n\n</blockquote>"
+
     def execute(self, message, attachment_actions, activity):
         try:
             q_str, comm_str = re.split(
@@ -77,6 +81,9 @@ class SqlFormatter(Command):
             f"Please type !sqlformat followed by your snowflake query",
             card=None,
         )
+
+    def pre_execute(self, message, attachment_actions, activity):
+        return "<blockquote class=info>\n\n**Command received.**\n\n\n**Working on SQL Reformatting...**\n\n</blockquote>"
 
     def execute(self, message, attachment_actions, activity):
         q_str = message.strip().lower()
@@ -172,7 +179,7 @@ class JiraStory(Command):
         except ValueError:
             response_message = (
                 "Invalid input format. \nPlease type !jsget followed by #{role: da/ de} and your jira story title."
-                "\nExample: \n\n```\n!jsget #de Building new data pipelines\n```"
+                "\nExample: \n\n```\n!jsget #de Create new data pipeline\n```"
             )
 
         return response_message
@@ -189,32 +196,17 @@ class JiraStoryWrite(Command):
     def execute(self, message, attachment_actions, activity):
         try:
             role, remaining_msg = message[1:].split(" ", 1)
-            role = role.lower()
+            role = jiraapi.parse_role(role)
 
-            if role == "#de":
-                role = "data engineer"
-            elif role == "#da":
-                role = "data analyst"
-            else:
-                raise ValueError
-
-            username_match = re.search(r"-u (\w+)", remaining_msg)
-            epic_id_match = re.search(r"-e (\w+)", remaining_msg)
-            team_id_match = re.search(r"-t (\w+)", remaining_msg)
-            sp_match = re.search(r"-sp (\w+)", remaining_msg)
-            username = username_match.group(1) if username_match else None
-            epic_id = epic_id_match.group(1) if epic_id_match else None
-            team_id = team_id_match.group(1) if team_id_match else None
-            sp = sp_match.group(1) if sp_match else None
+            username = jiraapi.extract_value(r"-u (\w+)", remaining_msg)
+            epic_id = jiraapi.extract_value(r"-e (\w+)", remaining_msg)
+            team_id = jiraapi.extract_value(r"-t (\w+)", remaining_msg)
+            sp = jiraapi.extract_value(r"-sp (\w+)", remaining_msg)
 
             remaining_msg = re.sub(
                 r"-u \w+|-e \w+|-t \w+|-sp \w+", "", remaining_msg
             ).strip()
             title = remaining_msg[0].upper() + remaining_msg[1:]
-
-            msg_hist = openaiapi.construct_jira_prompt(role, title)
-            response_message = openaiapi.chat_response(msg_hist)
-            logger.info(f"{response_message}")
 
             sender_email = activity["actor"]["emailAddress"]
             (
@@ -237,6 +229,14 @@ class JiraStoryWrite(Command):
                     raise ValueError("Invalid team id.")
                 default_team_id = team_id
 
+            if username is None:
+                assignee = sender_email.split("@")[0].lower()
+            else:
+                assignee = username
+
+            msg_hist = openaiapi.construct_jira_prompt(role, title)
+            response_message = openaiapi.chat_response(msg_hist)
+            logger.info(f"{response_message}")
             response_dict = extract_json_string(response_message)
             jiraapi.write_jira_story(
                 jiraapi.get_jira_story_details(
@@ -244,24 +244,21 @@ class JiraStoryWrite(Command):
                 )
             )
 
-            if username is None:
-                assignee = sender_email.split("@")[0].lower()
-            else:
-                assignee = username
+            
 
-            response_message = f"{response_message}\n{sender_email} Created a jira story for {assignee.lower()} under epic {default_epic_id} and board {default_team_id}"
+            response_message = f"{response_message}\n{sender_email} Created a jira story for {assignee.lower()} under epic {default_epic_id} on {[Jira Board](https://google.com)}"
 
         except ValueError as e:
             response_message = str(e).capitalize() + (
-                "\n\nInvalid input format. \nPlease type !jspost followed by #{role: da/de} and your jira story title.\nOptionally you can have -u {user-id}, -e {epic-id} and -t {jira-board-id} as well."
-                "\nExample: \n\n```\n!jspost #de Building new data pipelines\n```"
+                "\n\nInvalid input format. \nPlease type !jspost followed by #{role: da/de} and your jira story title.\nOptionally you can have -u {user_cec}, -e {epic-id} and -t {jira-board-id} as well."
+                "\nExample: \n\n```\n!jspost #de Create new data pipeline\n```"
                 "\n\nOptionally, you could also define your own parameter for **user**, **epic** and **team id** as below:"
                 "\n\nDefining user and epic:"
-                "\n```\n!jspost #de Building new data pipelines -u 123 -e 456\n```"
+                "\n```\n!jspost #de Create new data pipeline -u 123 -e 456\n```"
                 "\nDefining user only"
-                "\n```\n!jspost #de Building new data pipelines -u 123 \n```"
+                "\n```\n!jspost #de Create new data pipeline -u 123 \n```"
                 "\nDefining epic only:"
-                "\n```\n!jspost #de Building new data pipelines -e 456\n```"
+                "\n```\n!jspost #de Create new data pipeline -e 456\n```"
             )
         except Exception as e:
             response_message = f"Failed to create a jira story: {str(e)}"
