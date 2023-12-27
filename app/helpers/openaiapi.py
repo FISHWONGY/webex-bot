@@ -79,8 +79,8 @@ def construct_sf_prompt(
             c = "query should use only CTE instead of subquery when producing the query, always try to use the GROUP BY and HAVING functions instead of WINDOW function or the QUALIFY function, if there is a date related column in the query, always aim to use the WHERE clause to filter as early as possible for better performance."
         else:
             c = f"""{comment}"""
-        user_prompt = f"""Good job, that is what we want, let's keep it going!\nRemember the pattern from above.\nThe below query in snowflake runs very slow '{q}', In order to optimise the snowflake query, '{c}'."""
-        system_prompt = f"{MY_PROMPT}"
+        user_prompt = f"""Good job, that is what we want, let's keep it going!\nRemember the pattern from above, you MUST start your answer with 'Certainly! Here's your optimized SQL query <with optimisation details if you have any>:\n\n'\nThe below query in snowflake runs very slow '{q}', In order to optimise the snowflake query, '{c}'."""
+        system_prompt = f"{OPT_PROMPT}"
 
         return [
             {"role": "system", "content": system_prompt},
